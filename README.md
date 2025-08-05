@@ -1,3 +1,3 @@
 # BASM
 
-Basm is a training assembler for a virtual machine
+BASM is a training assembler for a virtual machine
