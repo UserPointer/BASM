@@ -41,6 +41,32 @@ public:
       writefln("DX: %04X (%d)", dx, dx);
    }
 
+   void AssigningTheValueByTheRegister() {
+      if(ax >= 0 && ax < 256) {
+         memory[ax] = 0x00;
+
+         memory[ax] = cast(ubyte)ax;
+      }
+
+      if(bx >= 0 && bx < 256) {
+         memory[bx] = 0x00;
+
+         memory[bx] = cast(ubyte)bx;
+      }
+
+      if(cx >= 0 && cx < 256) {
+         memory[cx] = 0x00;
+
+         memory[cx] = cast(ubyte)cx;
+      }
+
+      if(dx >= 0 && dx < 256) {
+         memory[dx] = 0x00;
+               
+         memory[dx] = cast(ubyte)dx;
+      }
+   }
+
    void executionOfInstructions(string[] lines) {
       foreach(line; lines) {
          auto trimmed = strip(line);
@@ -55,16 +81,26 @@ public:
             continue;
          }
 
+         if(parts[0] == ";") {
+            if(parts[1] != "\n") {
+               continue;
+            }
+
+            continue;
+         }
+
          if(parts[0] == "mov" && parts.length >= 3) {
+            memory[ax] = 0x00;
+
             string reg = parts[1];
             string val = parts[2];
 
             int value;
 
-            if(val.startsWith("0x")) {
-               value = to!int(val[2..$], 16);
-            } else {
-               value = to!int(val);
+            if(val.startsWith("#0x")) {
+               value = to!int(val[3..$], 16);
+            } else if(val.startsWith('$')) {
+               value = to!int(val[1..$]);
             }
 
             switch(reg) {
@@ -76,10 +112,11 @@ public:
                   writeln("Unknown register: ", reg);
             }
 
-            if(ax >= 0 && ax < 256) memory[ax] = cast(ubyte)ax;
-            if(bx >= 0 && bx < 256) memory[bx] = cast(ubyte)bx;
-            if(cx >= 0 && cx < 256) memory[cx] = cast(ubyte)cx;
-            if(dx >= 0 && dx < 256) memory[dx] = cast(ubyte)dx;
+            AssigningTheValueByTheRegister();
+         }
+
+         else {
+            throw new Exception("Error: Unknown instruction/diricative");
          }
       }
    }
@@ -104,6 +141,6 @@ void main(string[] args) {
       bvm.NexDump();
       bvm.RegistersStatus();
     } catch(Exception e) {
-        stderr.writeln("Error: ", e.msg);
+         throw new Exception("Error: ", e.msg);
     }
 }
